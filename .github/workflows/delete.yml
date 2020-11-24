@@ -1,0 +1,32 @@
+name: delete-branch
+on: delete
+
+jobs:
+  delete-workspace:
+    if: ${{ contains(github.ref, 'refs/heads/') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Init
+        working-directory: terraform
+        run: |
+          mkdir -p ~/.config/gcloud
+          echo '${{ secrets.GCLOUD_CREDENTIALS }}' > ~/.config/gcloud/application_default_credentials.json
+          BRANCH=`echo "$GITHUB_REF" | cut -d/ -f3- | tr / -`
+          terraform init
+          terraform workspace select $BRANCH
+          echo BRANCH=$BRANCH >> $GITHUB_ENV
+
+      - name: Terraform Destroy
+        id: destroy
+        working-directory: terraform
+        run: terraform destroy -auto-approve
+
+      - name: Terraform Workspace Delete
+        id: delete-workspace
+        working-directory: terraform
+        run: |
+          terraform workspace select default
+          terraform workspace delete $BRANCH

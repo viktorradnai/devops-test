@@ -30,3 +30,12 @@ variable "disk_size_gb" {
 variable "hostname_prefix" {
   default = "wipro-test"
 }
+
+variable "git_ref" {
+  default = ""
+}
+
+variable "name" {
+  description = "String used to make different versions of the stack unique"
+  default = "main"
+}

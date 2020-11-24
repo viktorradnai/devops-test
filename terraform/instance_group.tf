@@ -13,7 +13,7 @@ module "instance_template" {
   source_image_family  = "debian-10"
 
   metadata = {
-    startup-script = file("userdata.sh")
+    startup-script = templatefile("userdata.sh", { git_ref = var.git_ref })
   }
 
   access_config = [
@@ -23,9 +23,7 @@ module "instance_template" {
     }
   ]
 
-  tags = [
-    "wipro-test"
-  ]
+  tags = local.network_tags
 
   service_account = {
     email  = ""
@@ -41,7 +39,7 @@ module "managed_instance_group" {
   region            = var.gcp_region
 
   target_size       = var.instances
-  hostname          = var.hostname_prefix
+  hostname          = "${var.hostname_prefix}-${var.name}"
   instance_template = module.instance_template.self_link
 
   named_ports       = [
@@ -56,7 +54,7 @@ module "managed_instance_group" {
     instance_redistribution_type = "PROACTIVE"
     minimal_action               = "REPLACE"
 
-    max_surge_fixed              = 0
+    max_surge_fixed              = 4
     max_surge_percent            = null
     max_unavailable_fixed        = 0
     max_unavailable_percent      = null
