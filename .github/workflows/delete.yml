@@ -14,7 +14,7 @@ jobs:
         run: |
           mkdir -p ~/.config/gcloud
           echo '${{ secrets.GCLOUD_CREDENTIALS }}' > ~/.config/gcloud/application_default_credentials.json
-          BRANCH=`echo "$GITHUB_REF" | cut -d/ -f3- | tr / -`
+          BRANCH=`echo "${{ github.event.ref }}" | cut -d/ -f3- | tr / -`
           terraform init
           terraform workspace select $BRANCH
           echo BRANCH=$BRANCH >> $GITHUB_ENV
